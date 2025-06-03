@@ -22,13 +22,15 @@ import {
   registerForPushNotificationsAsync,
 } from "../components/notificationService";
 import TabBar from "../components/TabBar";
-import { initDatabase } from './database';
+// import { initDatabase } from './database';
 import FetchData from "./fetch_data";
 import GraphScreen from "./GraphScreen";
 import HealthAdvisory from "./health_advisory";
 import HistoricalData from "./HistoricalData";
 import WeatherForecast from "./WeatherForecast";
 // import { initDatabase } from './database';
+// import AqiDataViewer from './AqiDataViewer';
+import { initDatabase } from './database';
 
 const Tab = createBottomTabNavigator();
 initDatabase();
@@ -190,6 +192,11 @@ export default function App() {
     }
   }, [location, fetchWeather]);
 
+   
+
+
+  
+
   // In your main component
 useEffect(() => {
   const initializeApp = async () => {
@@ -279,6 +286,8 @@ useEffect(() => {
               
 
               <HealthAdvisory aqi={aqi} />
+
+               {/* <AqiDataViewer />; */}
             </ScrollView>
           </View>
         )}

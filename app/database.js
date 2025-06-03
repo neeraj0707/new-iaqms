@@ -79,14 +79,20 @@
 
 
 
+
+
+
 import * as SQLite from 'expo-sqlite';
 
 // Open database connection asynchronously
+let cachedDb = null;
+
 const openDatabaseAsync = async () => {
+   if (cachedDb) return cachedDb;
   try {
-    const db = await SQLite.openDatabaseAsync('aqi_data.db');
+    cachedDb = await SQLite.openDatabaseAsync('aqi_data.db');
      console.log('Database opened successfully');
-    return db;
+    return cachedDb;
   } catch (error) {
     console.error('Error opening database:', error);
     throw error;
@@ -107,8 +113,8 @@ export const initDatabase = async () => {
         rh TEXT,
         tvoc TEXT,
         time TEXT,
-        temp TEXT,
-        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        temp TEXT
+        
       );
     `);
     console.log('Database initialized successfully');
@@ -120,8 +126,22 @@ export const initDatabase = async () => {
 // Insert data function
 export const insertAqiData = async (data) => {
   try {
-     console.log('Inserting data:', data); // Log the data being inserted
+    // Format the datetime correctly
+    const dateTime = data.Time
+     ? `${new Date().toISOString().split('T')[0]} ${data.Time}` // e.g., "2025-06-03 16:01:15"
+     : new Date().toISOString().replace('T', ' ').substring(0, 19); // e.g., "2025-06-03 16:02:00"
+
+       // Log the data with formatted time
+    console.log('Inserting Data:', { 
+      ...data, 
+      Time: dateTime
+    }); // Log the data being inserted
+
     const db = await openDatabaseAsync();
+    
+
+    
+
     await db.runAsync(
       `INSERT INTO aqi_data (aqi, co2, pm10, pm25, rh, tvoc, time, temp) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -132,21 +152,24 @@ export const insertAqiData = async (data) => {
         data.PM25 || '',
         data.RH || '',
         data.TVOC || '',
-        data.Time || '',
+        dateTime,
         data.temp || ''
       ]
     );
     console.log('Data inserted successfully');
+       
   } catch (error) {
     console.error('Error inserting data:', error);
   }
+  
 };
 
 // Fetch all data
 export const fetchAllAqiData = async () => {
   try {
     const db = await openDatabaseAsync();
-    const result = await db.getAllAsync('SELECT * FROM aqi_data ORDER BY timestamp DESC');
+    
+    const result = await db.getAllAsync('SELECT * FROM aqi_data ORDER BY time DESC');
     return result;
   } catch (error) {
     console.error('Error fetching data:', error);
@@ -154,8 +177,20 @@ export const fetchAllAqiData = async () => {
   }
 };
 
+
 export default {
   initDatabase,
   insertAqiData,
   fetchAllAqiData
 };
+
+
+
+
+
+
+
+
+
+
+

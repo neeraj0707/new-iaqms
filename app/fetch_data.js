@@ -240,7 +240,7 @@ const FetchData = ({ onDataFetched }) => {
   const [data, setData] = useState([]); // Initialize as empty array
 
   useEffect(() => {
-    const dataRef = ref(db, "AQMSS1");
+    const dataRef = ref(db, "AQMSS3");
     const unsubscribe = onValue(dataRef, async (snapshot) => {
       const newData = snapshot.val();
       
@@ -314,7 +314,7 @@ const FetchData = ({ onDataFetched }) => {
             <Text style={styles.tableHeader}>TEMP (°C)</Text>
             <Text style={styles.tableHeader}>RH (%)</Text>
             <Text style={styles.tableHeader}>CO2 (ppm)</Text>
-            <Text style={styles.tableHeader}>TVOC (ppb)</Text>
+            <Text style={styles.tableHeader}>TVOC (mg/m³)</Text>
             <Text style={styles.tableHeader}>PM2.5 (µg/m³)</Text>
             <Text style={styles.tableHeader}>PM10 (µg/m³)</Text>
           </View>
@@ -325,10 +325,10 @@ const FetchData = ({ onDataFetched }) => {
                 <Text style={[styles.tableData, styles.timestampText]}>
                   {formatDisplayTimestamp(currentData.time)}
                 </Text>
-                <Text style={styles.tableData}>{currentData.TEMP.toFixed(1)}</Text>
-                <Text style={styles.tableData}>{currentData.RH.toFixed(1)}</Text> 
+                <Text style={styles.tableData}>{currentData.TEMP.toFixed(0)}</Text>
+                <Text style={styles.tableData}>{currentData.RH.toFixed(0)}</Text> 
                 <Text style={styles.tableData}>{currentData.CO2.toFixed(0)}</Text>
-                <Text style={styles.tableData}>{currentData.TVOC.toFixed(0)}</Text>
+                <Text style={styles.tableData}>{(currentData.TVOC / 100).toFixed(2)}</Text>
                 <Text style={styles.tableData}>{currentData.PM25.toFixed(0)}</Text>
                 <Text style={styles.tableData}>{currentData.PM10.toFixed(0)}</Text>
               </View>
@@ -338,10 +338,10 @@ const FetchData = ({ onDataFetched }) => {
                   <Text style={[styles.tableData, styles.timestampText]}>
                     {formatDisplayTimestamp(data.time)}
                   </Text>
-                  <Text style={styles.tableData}>{data.TEMP.toFixed(1)}</Text>
-                  <Text style={styles.tableData}>{data.RH.toFixed(1)}</Text> 
+                  <Text style={styles.tableData}>{data.TEMP.toFixed(0)}</Text>
+                  <Text style={styles.tableData}>{data.RH.toFixed(0)}</Text> 
                   <Text style={styles.tableData}>{data.CO2.toFixed(0)}</Text>
-                  <Text style={styles.tableData}>{data.TVOC.toFixed(0)}</Text>
+                  <Text style={styles.tableData}>{(data.TVOC / 100).toFixed(2)}</Text>
                   <Text style={styles.tableData}>{data.PM25.toFixed(0)}</Text>
                   <Text style={styles.tableData}>{data.PM10.toFixed(0)}</Text>
                 </View>
