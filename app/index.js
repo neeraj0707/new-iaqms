@@ -32,6 +32,7 @@ import WeatherForecast from "./WeatherForecast";
 // import AqiDataViewer from './AqiDataViewer';
 import { initDatabase } from './database';
 
+
 const Tab = createBottomTabNavigator();
 initDatabase();
 

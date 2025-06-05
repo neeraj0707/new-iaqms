@@ -82,6 +82,7 @@
 
 
 
+import * as FileSystem from 'expo-file-system';
 import * as SQLite from 'expo-sqlite';
 
 // Open database connection asynchronously
@@ -138,9 +139,6 @@ export const insertAqiData = async (data) => {
     }); // Log the data being inserted
 
     const db = await openDatabaseAsync();
-    
-
-    
 
     await db.runAsync(
       `INSERT INTO aqi_data (aqi, co2, pm10, pm25, rh, tvoc, time, temp) 
@@ -169,11 +167,39 @@ export const fetchAllAqiData = async () => {
   try {
     const db = await openDatabaseAsync();
     
-    const result = await db.getAllAsync('SELECT * FROM aqi_data ORDER BY time DESC');
+    const result = await db.getAllAsync('SELECT * FROM aqi_data ORDER BY id DESC');
+    //  console.log('Fetched Data:', result); // Debugging
     return result;
   } catch (error) {
     console.error('Error fetching data:', error);
     return [];
+  }
+};
+
+
+
+export const exportAqiDataToJson = async () => {
+  try {
+    const db = await openDatabaseAsync();
+    const result = await db.getAllAsync('SELECT * FROM aqi_data ORDER BY id DESC');
+
+    // Remove 'timestamp' key from each row
+    const cleanedData = result.map(row => {
+        if ('timestamp' in row) {
+        console.log('⛔ Found timestamp in row, removing:', row);
+      }
+      const { timestamp, ...rest } = row;
+      return rest;
+    });
+
+    const json = JSON.stringify(cleanedData, null, 2);
+    const fileUri = FileSystem.documentDirectory + 'aqi_data_export.json';
+    await FileSystem.writeAsStringAsync(fileUri, json);
+
+    console.log('✅ Cleaned data exported to:', fileUri);
+    return fileUri;
+  } catch (error) {
+    console.error('❌ Error exporting clean JSON:', error);
   }
 };
 
