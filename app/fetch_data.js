@@ -207,10 +207,10 @@
 
 
 import { onValue, ref } from "firebase/database";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { useEffect, useRef, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { insertAqiData } from './database';
-import { db } from "./firebase";
+import { db, firestore } from "./firebase";
 
 const formatTimeString = (timeString) => {
   if (typeof timeString === 'string' && timeString.match(/^\d{2}:\d{2}:\d{2}$/)) {
@@ -241,6 +241,29 @@ const FetchData = ({ onDataFetched }) => {
 
   useEffect(() => {
     const dataRef = ref(db, "AQMSS3");
+
+    onValue(dataRef, async (snapshot) => {
+    const data = snapshot.val();
+    console.log('Fetched Data from RTDB:', data);
+
+    // Push to Firestore Historical Collection
+    try {
+        await addDoc(collection(firestore, "AQMSS3_Historical"), {
+            timestamp: serverTimestamp(),
+            timeString: data.Time,
+            AQI: data.AQI,
+            CO2: data.CO2,
+            PM10: data.PM10,
+            PM25: data.PM25,
+            RH: data.RH,
+            TVOC: data.TVOC,
+            temp: data.temp
+        });
+        console.log('Data pushed to Firestore Historical');
+    } catch (error) {
+        console.error('Error adding document to Firestore:', error);
+    }
+});
     const unsubscribe = onValue(dataRef, async (snapshot) => {
       const newData = snapshot.val();
       
@@ -248,7 +271,7 @@ const FetchData = ({ onDataFetched }) => {
 
       try {
         // Store in SQLite
-        await insertAqiData(newData);
+        // await insertAqiData(newData);
         
         // Update state with the new data
         setData(prevData => {

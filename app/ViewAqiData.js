@@ -296,17 +296,21 @@
 
 
 import { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { Button, FlatList, StyleSheet, Text, View } from 'react-native';
 import { fetchAllAqiData } from './database'; // Adjust path if needed
+import { deleteAllFirestoreData } from './deleteAllFirestoreData'; // Adjust path if needed
+import { fetchFirestoreDataAndStoreInSQLite } from './fetchFirestoreDataAndStoreInSQLite';
 
 const ViewAqiData = () => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
     const loadData = async () => {
+      await fetchFirestoreDataAndStoreInSQLite();
       const result = await fetchAllAqiData();
       setData(result);
     };
+    
 
     loadData();
 
@@ -337,6 +341,11 @@ const ViewAqiData = () => {
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
       />
+      <Button style={styles.b}
+  title="Delete All Firestore Data"
+  onPress={deleteAllFirestoreData}
+/>
+
     </View>
   );
 };
@@ -371,5 +380,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'gray',
     marginBottom: 6,
+  },
+  b: {
+    // marginBottom: 20,
+    backgroundColor: '#007bff',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 150,
   },
 });

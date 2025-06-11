@@ -31,6 +31,7 @@ import WeatherForecast from "./WeatherForecast";
 // import { initDatabase } from './database';
 // import AqiDataViewer from './AqiDataViewer';
 import { initDatabase } from './database';
+import { fetchFirestoreDataAndStoreInSQLite } from './fetchFirestoreDataAndStoreInSQLite';
 
 
 const Tab = createBottomTabNavigator();
@@ -203,6 +204,10 @@ useEffect(() => {
   const initializeApp = async () => {
     try {
       await initDatabase();
+
+      // 🚀 Fetch from Firestore and store in SQLite
+      await fetchFirestoreDataAndStoreInSQLite();
+      console.log('App initialized and Firestore data synced to SQLite.');
       // Other initialization code
     } catch (error) {
       console.error('App initialization failed:', error);

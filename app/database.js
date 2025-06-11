@@ -114,7 +114,8 @@ export const initDatabase = async () => {
         rh TEXT,
         tvoc TEXT,
         time TEXT,
-        temp TEXT
+        temp TEXT,
+        timestamp INTEGER
         
       );
     `);
@@ -133,10 +134,10 @@ export const insertAqiData = async (data) => {
      : new Date().toISOString().replace('T', ' ').substring(0, 19); // e.g., "2025-06-03 16:02:00"
 
        // Log the data with formatted time
-    console.log('Inserting Data:', { 
-      ...data, 
-      Time: dateTime
-    }); // Log the data being inserted
+    // console.log('Inseritng Data:', { 
+    //   ...data, 
+    //   Time: dateTime
+    // }); // Log the data being inserted
 
     const db = await openDatabaseAsync();
 
@@ -151,10 +152,11 @@ export const insertAqiData = async (data) => {
         data.RH || '',
         data.TVOC || '',
         dateTime,
-        data.temp || ''
+        data.temp || '',
+        data.timestamp?.seconds ? data.timestamp.seconds * 1000 : Date.now()
       ]
     );
-    console.log('Data inserted successfully');
+    // console.log('Data inserted successfully');
        
   } catch (error) {
     console.error('Error inserting data:', error);
@@ -167,7 +169,7 @@ export const fetchAllAqiData = async () => {
   try {
     const db = await openDatabaseAsync();
     
-    const result = await db.getAllAsync('SELECT * FROM aqi_data ORDER BY id DESC');
+    const result = await db.getAllAsync('SELECT * FROM aqi_data ORDER BY timestamp DESC');
     //  console.log('Fetched Data:', result); // Debugging
     return result;
   } catch (error) {

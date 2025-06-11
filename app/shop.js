@@ -1,7 +1,8 @@
 
-import { View, Text, Image, TouchableOpacity, Animated } from "react-native";
 import { useRouter } from "expo-router";
 import { useRef } from "react";
+import { Animated, Image, Text, TouchableOpacity, View } from "react-native";
+import { deleteAllFirestoreData } from './deleteAllFirestoreData'; // Adjust path as needed
 
 const products = [
   {
@@ -87,7 +88,13 @@ export default function Shop() {
       }}
       keyboardShouldPersistTaps="handled"
     >
+
+
+
       <Text style={{ fontSize: 30, fontWeight: 600, marginBottom: 10 , color: "#054193", paddingBottom: 25 }}>Air Quality Devices</Text>
+
+      
+
 
       {products.map((item) => (
         <TouchableOpacity
@@ -189,6 +196,24 @@ export default function Shop() {
           </View>
         </TouchableOpacity>
       ))}
+
+      <View style={{ marginBottom: 10 }}>
+  <TouchableOpacity
+    onPress={() => {
+      deleteAllFirestoreData();
+    }}
+    style={{
+      backgroundColor: "red",
+      padding: 10,
+      borderRadius: 8,
+      alignItems: "center",
+    }}
+  >
+    <Text style={{ color: "white", fontWeight: "bold" }}>
+      Delete All Firestore Data
+    </Text>
+  </TouchableOpacity>
+</View>
     </Animated.ScrollView>
   );
 }
