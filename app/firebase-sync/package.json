@@ -1,0 +1,12 @@
+{
+  "name": "firebase-sync",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "dependencies": {
+    "firebase": "^10.12.0"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}
