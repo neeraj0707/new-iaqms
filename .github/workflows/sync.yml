@@ -5,6 +5,10 @@ on:
     - cron: "*/1 * * * *"  # Runs every 5 minutes
   workflow_dispatch:
 
+concurrency:
+  group: "firebase-sync"
+  cancel-in-progress: true
+
 jobs:
   sync:
     runs-on: ubuntu-latest
