@@ -30,12 +30,13 @@ import HistoricalData from "./HistoricalData";
 import WeatherForecast from "./WeatherForecast";
 // import { initDatabase } from './database';
 // import AqiDataViewer from './AqiDataViewer';
-import { initDatabase } from './database';
-import { fetchFirestoreDataAndStoreInSQLite } from './fetchFirestoreDataAndStoreInSQLite';
-
-
+// import { initDatabase } from './database';
+// import { fetchFirestoreDataAndStoreInSQLite } from './fetchFirestoreDataAndStoreInSQLite';
+// import AqiDataViewer from "./AqiDataViewer";
+// import { startSyncStoreDataToSQLite } from './storeDataFetcher'; // Adjust path as needed
+import FirebaseToSQLite from "./FirebaseToSQLite"; // Adjust path as needed
 const Tab = createBottomTabNavigator();
-initDatabase();
+// initDatabase();
 
 // Constants
 const WEATHER_API_KEY = "d7676f26e867ad13873d0bf87fb3a449";
@@ -194,29 +195,17 @@ export default function App() {
     }
   }, [location, fetchWeather]);
 
+
+
+  //  useEffect(() => {
+  //   startSyncStoreDataToSQLite();
+  // }, []);
    
 
 
   
 
-  // In your main component
-useEffect(() => {
-  const initializeApp = async () => {
-    try {
-      await initDatabase();
-
-      // 🚀 Fetch from Firestore and store in SQLite
-      await fetchFirestoreDataAndStoreInSQLite();
-      console.log('App initialized and Firestore data synced to SQLite.');
-      // Other initialization code
-    } catch (error) {
-      console.error('App initialization failed:', error);
-    }
-  };
   
-  initializeApp();
-}, []);
-
   const { status, color } = getAQIStatus(aqi);
 
   
@@ -293,7 +282,11 @@ useEffect(() => {
 
               <HealthAdvisory aqi={aqi} />
 
+              <FirebaseToSQLite />
+
                {/* <AqiDataViewer />; */}
+
+                {/* <AqiDataViewer />  */}
             </ScrollView>
           </View>
         )}
