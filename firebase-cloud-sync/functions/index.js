@@ -1,19 +1,57 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * const {onCall} = require("firebase-functions/v2/https");
- * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
+// /**
+//  * Import function triggers from their respective submodules:
+//  *
+//  * const {onCall} = require("firebase-functions/v2/https");
+//  * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
+//  *
+//  * See a full list of supported triggers at https://firebase.google.com/docs/functions
+//  */
 
-const {onRequest} = require("firebase-functions/v2/https");
-const logger = require("firebase-functions/logger");
+// const {onRequest} = require("firebase-functions/v2/https");
+// const logger = require("firebase-functions/logger");
 
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
+// // Create and deploy your first functions
+// // https://firebase.google.com/docs/functions/get-started
 
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+// // exports.helloWorld = onRequest((request, response) => {
+// //   logger.info("Hello logs!", {structuredData: true});
+// //   response.send("Hello from Firebase!");
+// // });
+
+
+
+
+
+
+
+
+
+
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+
+admin.initializeApp();
+const firestore = admin.firestore();
+
+exports.syncRealtimeToFirestore = functions.database
+  .ref('/AQMSS3')
+  .onWrite(async (change, context) => {
+    const data = change.after.val();
+
+    if (!data) {
+      console.log("No data received.");
+      return null;
+    }
+
+    try {
+      await firestore.collection('AQMSS3_Historical').add({
+        ...data,
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      console.log("✅ Synced to Firestore:", data);
+    } catch (error) {
+      console.error("❌ Sync failed:", error);
+    }
+
+    return null;
+  });

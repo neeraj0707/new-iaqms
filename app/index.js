@@ -34,7 +34,7 @@ import WeatherForecast from "./WeatherForecast";
 // import { fetchFirestoreDataAndStoreInSQLite } from './fetchFirestoreDataAndStoreInSQLite';
 // import AqiDataViewer from "./AqiDataViewer";
 // import { startSyncStoreDataToSQLite } from './storeDataFetcher'; // Adjust path as needed
-import FirebaseToSQLite from "./FirebaseToSQLite"; // Adjust path as needed
+// import TwentyFourHourGraph from './TwentyFourHourGraph';
 const Tab = createBottomTabNavigator();
 // initDatabase();
 
@@ -282,7 +282,14 @@ export default function App() {
 
               <HealthAdvisory aqi={aqi} />
 
-              <FirebaseToSQLite />
+              {/* <FirebaseToSQLite /> */}
+             
+
+              {/* <View style={styles.paddedContainer}>
+                 <TwentyFourHourGraph />
+              </View> */}
+
+
 
                {/* <AqiDataViewer />; */}
 

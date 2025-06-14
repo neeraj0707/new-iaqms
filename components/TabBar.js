@@ -34,7 +34,7 @@ const TabBar = ({ state, descriptors, navigation }) => {
             ? options.title
             : route.name;
 
-        if (['fetch_data','map', '_sitemap', '+not-found', 'aqi_details', 'AqiDataDisplay' ,'details_screen', 'syncData', 'GraphScreen','LiveDataGraph','HistoricalDataGraph','HistoryData','WeatherForecast','HIstogram','pastData','Histogram','HistoricalData','health_advisory','AQIListener','detail','firebase','syncDataToFirestore','SendPushNotification','registerForPushNotifications','database'].includes(route.name)) return null;
+        if (['fetch_data','map', '_sitemap', '+not-found', 'aqi_details', 'AqiDataDisplay' ,'details_screen', 'syncData', 'GraphScreen','LiveDataGraph','HistoricalDataGraph','HistoryData','WeatherForecast','HIstogram','pastData','Histogram','HistoricalData','health_advisory','AQIListener','detail','firebase','syncDataToFirestore','SendPushNotification','registerForPushNotifications','database', 'TwentyFourHourGraph'].includes(route.name)) return null;
 
         const isFocused = state.index === index;
 
