@@ -2,8 +2,8 @@
 import { useRouter } from "expo-router";
 import { useRef } from "react";
 import { Animated, Image, Text, TouchableOpacity, View } from "react-native";
-import { deleteAllFirestoreData } from './deleteAllFirestoreData'; // Adjust path as needed
-
+// import { deleteAllFirestoreData } from './deleteAllFirestoreData'; // Adjust path as needed
+import { deleteAllRTDBData } from "./deleteAllRTDBData"; // Adjust path as needed
 const products = [
   {
     id: "1",
@@ -200,7 +200,8 @@ export default function Shop() {
       <View style={{ marginBottom: 10 }}>
   <TouchableOpacity
     onPress={() => {
-      deleteAllFirestoreData();
+      // deleteAllFirestoreData();
+      deleteAllRTDBData();
     }}
     style={{
       backgroundColor: "red",

@@ -107,6 +107,15 @@ const Layout = () => {
             tabBarLabel: 'Explore',
           }}
         />
+
+        <Tabs.Screen
+  name="FirebaseToSQLite"
+  options={{
+    title: 'Timeline',         // Title in header
+    tabBarLabel: 'Timeline',   // Label in tab bar
+  }}
+/>
+
       </Tabs>
 
       {/* Global Air Estimation Modal */}

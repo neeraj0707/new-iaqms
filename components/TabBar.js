@@ -21,6 +21,7 @@ const TabBar = ({ state, descriptors, navigation }) => {
     map: (props) => <FontAwesome name="globe" size={26} color={props.color} {...props} />,
     explore: (props) => <Feather name="compass" size={26} color={props.color} {...props} />,
     shop: (props) => <AntDesign name="shoppingcart" size={26} color={props.color} {...props} />,
+    FirebaseToSQLite: (props) => <AntDesign name="clockcircleo" size={26} color={props.color} {...props} />,
   };
 
   return (

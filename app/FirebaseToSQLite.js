@@ -962,6 +962,200 @@
 
 
 
+// import * as SQLite from 'expo-sqlite';
+// import { getDatabase, onChildAdded, ref } from 'firebase/database';
+// import { useEffect, useState } from 'react';
+// import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+
+// let dbInstance = null;
+
+// // Open DB
+// export const openDb = async () => {
+//   if (!dbInstance) {
+//     dbInstance = await SQLite.openDatabaseAsync('aqi_data.db');
+//   }
+//   return dbInstance;
+// };
+
+// // Create table
+// const createTable = async (db) => {
+//   await db.execAsync(`
+//     CREATE TABLE IF NOT EXISTS aqi_data (
+//       id TEXT PRIMARY KEY NOT NULL,
+//       aqi TEXT,
+//       co2 TEXT,
+//       pm10 TEXT,
+//       pm25 TEXT,
+//       tvoc TEXT,
+//       humidity TEXT,
+//       temperature TEXT,
+//       datetime TEXT
+//     );
+//   `);
+// };
+
+// // Decode Firebase push key to timestamp
+// const getDateFromFirebaseKey = (key) => {
+//   const PUSH_CHARS = '-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
+//   let timestamp = 0;
+//   for (let i = 0; i < 8; i++) {
+//     timestamp = timestamp * 64 + PUSH_CHARS.indexOf(key.charAt(i));
+//   }
+//   return new Date(timestamp);
+// };
+
+// // Format datetime for UI
+// const formatDateTime = (key, timeStr) => {
+//   const createdDate = getDateFromFirebaseKey(key);
+//   const dateStr = `${String(createdDate.getDate()).padStart(2, '0')}-${String(createdDate.getMonth() + 1).padStart(2, '0')}-${createdDate.getFullYear()}`;
+//   const timeFormatted = timeStr || '00:00:00';
+//   return `${dateStr} ${timeFormatted}`;
+//   //  return createdDate.toISOString(); // ✅ ISO format: 2025-06-14T10:30:00.000Z
+// };
+
+// // Insert if new
+// const insertIfNew = async (db, key, value) => {
+//   const datetime = formatDateTime(key, value?.Time);
+//   try {
+//     await db.runAsync(`
+//       INSERT OR IGNORE INTO aqi_data 
+//       (id, aqi, co2, pm10, pm25, tvoc, humidity, temperature, datetime)
+//       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+//     `, [
+//       key,
+//       value?.AQI || '',
+//       value?.CO2 || '',
+//       value?.PM10 || '',
+//       value?.PM25 || '',
+//       value?.TVOC || '',
+//       value?.RH || '',
+//       value?.temp || '',
+//       datetime,
+//     ]);
+
+//     return {
+//       id: key,
+//       aqi: value?.AQI || '',
+//       co2: value?.CO2 || '',
+//       pm10: value?.PM10 || '',
+//       pm25: value?.PM25 || '',
+//       tvoc: value?.TVOC || '',
+//       humidity: value?.RH || '',
+//       temperature: value?.temp || '',
+//       datetime,
+//     };
+//   } catch (e) {
+//     console.error(`❌ Insert error for ${key}:`, e);
+//     return null;
+//   }
+// };
+
+// // Firebase sync: insert new, update UI without fetching full table
+// const startRealtimeEfficientSync = (db, setData) => {
+//   const database = getDatabase();
+//   const dataRef = ref(database, 'AQMSS3_storeData');
+
+//   onChildAdded(dataRef, async (snapshot) => {
+//     const key = snapshot.key;
+//     const value = snapshot.val();
+//     if (!key || !value) return;
+
+//     const insertedItem = await insertIfNew(db, key, value);
+//     if (insertedItem) {
+//       // setData((prevData) => {
+//       //   const updated = [insertedItem, ...prevData];
+//       //   return updated.slice(0, 100); // Keep only 100 latest in UI
+//       // });
+//       setData((prevData) => {
+//   // Check if this item already exists
+//   const exists = prevData.some(item => item.id === insertedItem.id);
+//   if (exists) return prevData; // skip duplicate
+
+//   const updated = [insertedItem, ...prevData];
+//   return updated.slice(0, 100);
+// });
+
+//     }
+//   });
+// };
+
+// // Main Component
+// const FirebaseToSQLite = () => {
+//   const [data, setData] = useState([]);
+//   const [loading, setLoading] = useState(true);
+
+//   useEffect(() => {
+//     const init = async () => {
+//       const db = await openDb();
+//       await createTable(db);
+
+//       // Load latest 100 entries
+//       const initialRows = await db.getAllAsync(`
+//         SELECT * FROM aqi_data ORDER BY datetime DESC LIMIT 100
+//       `);
+//       setData(initialRows);
+//       setLoading(false);
+
+//       // Start real-time sync after initial load
+//       startRealtimeEfficientSync(db, setData);
+//     };
+//     init();
+//   }, []);
+
+//   if (loading) {
+//     return <ActivityIndicator size="large" style={{ marginTop: 40 }} />;
+//   }
+
+//   return (
+//     <ScrollView style={styles.container}>
+//       <Text style={styles.title}>Firebase to SQLite Data</Text>
+//       {data.length === 0 ? (
+//         <Text style={styles.noData}>No data found.</Text>
+//       ) : (
+//         data.map((item) => (
+//           <View key={item.id} style={styles.card}>
+//             <Text>CO₂: {item.co2}</Text>
+//             <Text>PM10: {item.pm10}</Text>
+//             <Text>PM2.5: {item.pm25}</Text>
+//             <Text>Humidity: {item.humidity}</Text>
+//             <Text>TVOC: {item.tvoc}</Text>
+//             <Text>Temperature: {item.temperature}°C</Text>
+//             <Text style={styles.timestamp}>🕒 {item.datetime}</Text>
+//           </View>
+//         ))
+//       )}
+//     </ScrollView>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: { padding: 20 },
+//   title: { fontSize: 20, fontWeight: 'bold', marginBottom: 10 },
+//   card: {
+//     backgroundColor: '#f2f2f2',
+//     padding: 10,
+//     borderRadius: 10,
+//     marginBottom: 10,
+//   },
+//   timestamp: { marginTop: 5, fontSize: 12, color: '#555' },
+//   noData: { fontSize: 16, color: '#888', textAlign: 'center', marginTop: 20 },
+// });
+
+// export default FirebaseToSQLite;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import * as SQLite from 'expo-sqlite';
 import { getDatabase, onChildAdded, ref } from 'firebase/database';
 import { useEffect, useState } from 'react';
@@ -977,7 +1171,7 @@ export const openDb = async () => {
   return dbInstance;
 };
 
-// Create table
+// Create table with datetime (display) and timestamp (ISO)
 const createTable = async (db) => {
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS aqi_data (
@@ -989,10 +1183,21 @@ const createTable = async (db) => {
       tvoc TEXT,
       humidity TEXT,
       temperature TEXT,
-      datetime TEXT
+      datetime TEXT,   -- for user display
+      timestamp TEXT   -- for filtering and graphs
     );
   `);
 };
+
+const addMissingTimestampColumn = async (db) => {
+  const columns = await db.getAllAsync(`PRAGMA table_info(aqi_data);`);
+  const hasTimestamp = columns.some(col => col.name === 'timestamp');
+  if (!hasTimestamp) {
+    await db.execAsync(`ALTER TABLE aqi_data ADD COLUMN timestamp TEXT;`);
+    console.log("✅ 'timestamp' column added to 'aqi_data' table.");
+  }
+};
+
 
 // Decode Firebase push key to timestamp
 const getDateFromFirebaseKey = (key) => {
@@ -1004,33 +1209,39 @@ const getDateFromFirebaseKey = (key) => {
   return new Date(timestamp);
 };
 
-// Format datetime for UI
+// Return both display-friendly and ISO formats
 const formatDateTime = (key, timeStr) => {
   const createdDate = getDateFromFirebaseKey(key);
   const dateStr = `${String(createdDate.getDate()).padStart(2, '0')}-${String(createdDate.getMonth() + 1).padStart(2, '0')}-${createdDate.getFullYear()}`;
   const timeFormatted = timeStr || '00:00:00';
-  return `${dateStr} ${timeFormatted}`;
-  //  return createdDate.toISOString(); // ✅ ISO format: 2025-06-14T10:30:00.000Z
+  const readable = `${dateStr} ${timeFormatted}`;
+  const iso = createdDate.toISOString();
+  return { readable, iso };
 };
 
-// Insert if new
+// Insert if new, store both datetime and timestamp
 const insertIfNew = async (db, key, value) => {
-  const datetime = formatDateTime(key, value?.Time);
+  const { readable, iso } = formatDateTime(key, value?.Time);
+  const tvocFormatted = value?.TVOC ? (parseFloat(value.TVOC) / 100).toFixed(2) : '';
+
   try {
     await db.runAsync(`
       INSERT OR IGNORE INTO aqi_data 
-      (id, aqi, co2, pm10, pm25, tvoc, humidity, temperature, datetime)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (id, aqi, co2, pm10, pm25, tvoc, humidity, temperature, datetime, timestamp)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       key,
       value?.AQI || '',
       value?.CO2 || '',
       value?.PM10 || '',
       value?.PM25 || '',
-      value?.TVOC || '',
+      tvocFormatted,
+      // value?.TVOC ? (parseFloat(value.TVOC) / 100).toFixed(2) : '',
+      // value?.TVOC || '',
       value?.RH || '',
       value?.temp || '',
-      datetime,
+      readable,
+      iso
     ]);
 
     return {
@@ -1039,10 +1250,12 @@ const insertIfNew = async (db, key, value) => {
       co2: value?.CO2 || '',
       pm10: value?.PM10 || '',
       pm25: value?.PM25 || '',
-      tvoc: value?.TVOC || '',
+       tvoc: tvocFormatted, 
+      // tvoc: value?.TVOC || '',
       humidity: value?.RH || '',
       temperature: value?.temp || '',
-      datetime,
+      datetime: readable,
+      timestamp: iso,
     };
   } catch (e) {
     console.error(`❌ Insert error for ${key}:`, e);
@@ -1050,7 +1263,7 @@ const insertIfNew = async (db, key, value) => {
   }
 };
 
-// Firebase sync: insert new, update UI without fetching full table
+// Start Firebase listener and update SQLite + UI
 const startRealtimeEfficientSync = (db, setData) => {
   const database = getDatabase();
   const dataRef = ref(database, 'AQMSS3_storeData');
@@ -1062,24 +1275,17 @@ const startRealtimeEfficientSync = (db, setData) => {
 
     const insertedItem = await insertIfNew(db, key, value);
     if (insertedItem) {
-      // setData((prevData) => {
-      //   const updated = [insertedItem, ...prevData];
-      //   return updated.slice(0, 100); // Keep only 100 latest in UI
-      // });
       setData((prevData) => {
-  // Check if this item already exists
-  const exists = prevData.some(item => item.id === insertedItem.id);
-  if (exists) return prevData; // skip duplicate
-
-  const updated = [insertedItem, ...prevData];
-  return updated.slice(0, 100);
-});
-
+        const exists = prevData.some(item => item.id === insertedItem.id);
+        if (exists) return prevData;
+        const updated = [insertedItem, ...prevData];
+        return updated.slice(0, 100); // Keep UI light
+      });
     }
   });
 };
 
-// Main Component
+// Component
 const FirebaseToSQLite = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -1088,15 +1294,15 @@ const FirebaseToSQLite = () => {
     const init = async () => {
       const db = await openDb();
       await createTable(db);
+      await addMissingTimestampColumn(db);
 
-      // Load latest 100 entries
+
       const initialRows = await db.getAllAsync(`
-        SELECT * FROM aqi_data ORDER BY datetime DESC LIMIT 100
+        SELECT * FROM aqi_data ORDER BY timestamp DESC LIMIT 100
       `);
       setData(initialRows);
       setLoading(false);
 
-      // Start real-time sync after initial load
       startRealtimeEfficientSync(db, setData);
     };
     init();
@@ -1108,17 +1314,17 @@ const FirebaseToSQLite = () => {
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>Firebase to SQLite Data</Text>
+      <Text style={styles.title}>History Timeline</Text>
       {data.length === 0 ? (
         <Text style={styles.noData}>No data found.</Text>
       ) : (
         data.map((item) => (
           <View key={item.id} style={styles.card}>
-            <Text>CO₂: {item.co2}</Text>
-            <Text>PM10: {item.pm10}</Text>
-            <Text>PM2.5: {item.pm25}</Text>
-            <Text>Humidity: {item.humidity}</Text>
-            <Text>TVOC: {item.tvoc}</Text>
+            <Text>CO₂: {item.co2} ppm</Text>
+            <Text>PM10: {item.pm10} µg/m³</Text>
+            <Text>PM2.5: {item.pm25} µg/m³</Text>
+            <Text>Humidity: {item.humidity} %</Text>
+            <Text>TVOC: {item.tvoc} mg/m³</Text>
             <Text>Temperature: {item.temperature}°C</Text>
             <Text style={styles.timestamp}>🕒 {item.datetime}</Text>
           </View>
