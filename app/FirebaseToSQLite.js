@@ -1157,6 +1157,8 @@
 
 
 import * as SQLite from 'expo-sqlite';
+// import { openDatabase } from 'expo-sqlite'; // ✅
+
 import { getDatabase, onChildAdded, ref } from 'firebase/database';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -1166,6 +1168,7 @@ let dbInstance = null;
 // Open DB
 export const openDb = async () => {
   if (!dbInstance) {
+    //  dbInstance = openDatabase('aqi_data.db');
     dbInstance = await SQLite.openDatabaseAsync('aqi_data.db');
   }
   return dbInstance;
@@ -1300,6 +1303,7 @@ const FirebaseToSQLite = () => {
       const initialRows = await db.getAllAsync(`
         SELECT * FROM aqi_data ORDER BY timestamp DESC LIMIT 100
       `);
+     
       setData(initialRows);
       setLoading(false);
 
